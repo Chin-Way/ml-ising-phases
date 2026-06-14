@@ -17,13 +17,30 @@ from .dataset import make_dataset
 from .montecarlo import TC_EXACT
 
 
-def _crossing(temps: np.ndarray, p: np.ndarray, level: float = 0.5) -> float:
+def crossing(temps: np.ndarray, p: np.ndarray, level: float = 0.5) -> float:
     """Temperature where ``p(T)`` first crosses ``level`` (linear interpolation)."""
     for i in range(len(temps) - 1):
         if (p[i] - level) * (p[i + 1] - level) <= 0 and p[i + 1] != p[i]:
             frac = (level - p[i]) / (p[i + 1] - p[i])
             return float(temps[i] + frac * (temps[i + 1] - temps[i]))
     return float("nan")
+
+
+def average_by_temperature(values: np.ndarray, T: np.ndarray, temperatures: np.ndarray) -> np.ndarray:
+    """Mean of ``values`` over the samples drawn at each temperature."""
+    return np.array([values[T == t].mean() for t in temperatures])
+
+
+def train_mlp(X_train: np.ndarray, y_train: np.ndarray, seed: int = 0) -> MLPClassifier:
+    """Fit the one-hidden-layer baseline classifier on flattened spins."""
+    clf = MLPClassifier(
+        hidden_layer_sizes=(64,),
+        activation="relu",
+        max_iter=400,
+        random_state=seed,
+    )
+    clf.fit(X_train, y_train)
+    return clf
 
 
 def estimate_tc(
@@ -45,21 +62,15 @@ def estimate_tc(
     train = (T < train_below) | (T > train_above)
     y_train = (T[train] > train_above).astype(int)
 
-    clf = MLPClassifier(
-        hidden_layer_sizes=(64,),
-        activation="relu",
-        max_iter=400,
-        random_state=seed,
-    )
-    clf.fit(X[train], y_train)
+    clf = train_mlp(X[train], y_train, seed)
 
-    # Held-out accuracy in the confident region (sanity check).
+    # Accuracy in the confident region (sanity check).
     train_acc = clf.score(X[train], y_train)
 
     # Average P(disordered) at every temperature, including the critical region.
     proba = clf.predict_proba(X)[:, 1]
-    p_by_T = np.array([proba[T == t].mean() for t in temperatures])
-    tc_est = _crossing(temperatures, p_by_T)
+    p_by_T = average_by_temperature(proba, T, temperatures)
+    tc_est = crossing(temperatures, p_by_T)
 
     return {
         "temperatures": temperatures,
