@@ -1,4 +1,5 @@
 numpy>=1.24
 scikit-learn>=1.2
 matplotlib>=3.7
+torch>=2.0            # CPU build is plenty; see the CPU wheel index to slim the download
 pytest>=7.0
