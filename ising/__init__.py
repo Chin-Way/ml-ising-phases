@@ -5,6 +5,7 @@
 * :mod:`ising.model`      -- a fully-connected net that learns the phase, recovers T_c.
 * :mod:`ising.cnn`        -- a small convolutional net on the raw lattice (PyTorch).
 * :mod:`ising.compare`    -- a fair MLP-vs-CNN head-to-head on one dataset.
+* :mod:`ising.scaling`    -- finite-size scaling and magnetization data collapse.
 
 The Monte Carlo + analysis core is import-light (NumPy, scikit-learn). The
 convolutional pieces pull in PyTorch, so :mod:`ising.cnn` and
@@ -14,7 +15,7 @@ torch-free until you actually reach for them.
 
 import importlib
 
-from . import dataset, model, montecarlo
+from . import dataset, model, montecarlo, scaling
 from .montecarlo import TC_EXACT, simulate, thermodynamics
 
 __all__ = [
@@ -23,6 +24,7 @@ __all__ = [
     "model",
     "cnn",
     "compare",
+    "scaling",
     "simulate",
     "thermodynamics",
     "TC_EXACT",
