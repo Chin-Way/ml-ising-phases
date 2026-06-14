@@ -6,6 +6,7 @@
 * :mod:`ising.cnn`        -- a small convolutional net on the raw lattice (PyTorch).
 * :mod:`ising.compare`    -- a fair MLP-vs-CNN head-to-head on one dataset.
 * :mod:`ising.scaling`    -- finite-size scaling and magnetization data collapse.
+* :mod:`ising.wolff`      -- Wolff cluster sampler that beats critical slowing down.
 
 The Monte Carlo + analysis core is import-light (NumPy, scikit-learn). The
 convolutional pieces pull in PyTorch, so :mod:`ising.cnn` and
@@ -15,7 +16,7 @@ torch-free until you actually reach for them.
 
 import importlib
 
-from . import dataset, model, montecarlo, scaling
+from . import dataset, model, montecarlo, scaling, wolff
 from .montecarlo import TC_EXACT, simulate, thermodynamics
 
 __all__ = [
@@ -25,6 +26,7 @@ __all__ = [
     "cnn",
     "compare",
     "scaling",
+    "wolff",
     "simulate",
     "thermodynamics",
     "TC_EXACT",
